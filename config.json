@@ -1,5 +1,0 @@
-{
-    "ram_directory": "/tmp/ssd_temp",
-    "db_name": "sqlite.db",
-    "data_store_on_disk": "~/.config/lower_ssd_write_frequency"
-}
