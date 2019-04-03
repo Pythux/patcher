@@ -71,7 +71,7 @@ def delete_olds(relative_path):
             return True
         return False
 
-    delete_fn = os.remove
+    delete_fn = shutil.rmtree
     if os.path.isfile(pj(ram_data, relative_path)):
         delete_fn = os.unlink
 
