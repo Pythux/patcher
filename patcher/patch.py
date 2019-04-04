@@ -60,7 +60,7 @@ def try_patch(relative_path, data_path, save_path):
         len_ram_file = len(current_file)
         if len(patch) < len_ram_file and total_size_in_disk < len_ram_file * 3:
             logi('add new patch for: {}'.format(relative_path))
-            add_new_patch(relative_path, patch, len(li_patch) + 1)
+            add_new_patch(relative_path, patch, len(li_patch) + 1, save_path)
         else:
             logi('del olds patch and create src_new for ' + relative_path)
             create_binary_file(

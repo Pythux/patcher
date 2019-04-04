@@ -19,5 +19,5 @@ def load(data_path, save_path):
             create_binary_file(pj(data_path, relative_path), file)
 
         for dir_name in dirnames:
-            relative_path = get_relative_path(src, pj(dirpath, file_name))
+            relative_path = get_relative_path(src, pj(dirpath, dir_name))
             os.makedirs(pj(data_path, relative_path))

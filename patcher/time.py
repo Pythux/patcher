@@ -1,7 +1,7 @@
 import math
 from datetime import datetime
 
-from database.connection import sql_sqlite
+from CRUD_vanilla.connection import sql_sqlite
 
 
 def create_db(db_location):

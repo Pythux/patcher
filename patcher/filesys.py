@@ -25,8 +25,8 @@ def create_binary_file(path, content):
         f.write(content)
 
 
-def copy_data_in_src(abs_path, save_path):
-    relative_path = get_relative_path(save_path, abs_path)
+def copy_data_in_src(abs_path, data_path, save_path):
+    relative_path = get_relative_path(data_path, abs_path)
     relavive_path_to_make, name_to_copy = os.path.split(relative_path)
     path_src_to_make = pj(save_path, 'src', relavive_path_to_make)
     path_dest = pj(path_src_to_make, name_to_copy)
@@ -64,7 +64,7 @@ def delete_old_and_mv_new_to_src(save_path):
             os.rmdir(pj(dirpath, emptied_dir))
 
 
-def delete_olds(relative_path, data_path, save_path):
+def delete_olds(relative_path, save_path):
     def try_delete(path, delete_fn):
         if os.path.exists(path):
             delete_fn(path)
@@ -72,13 +72,18 @@ def delete_olds(relative_path, data_path, save_path):
         return False
 
     delete_fn = shutil.rmtree
-    if os.path.isfile(pj(data_path, relative_path)):
+    if os.path.isfile(pj(save_path, 'src', relative_path)):
         delete_fn = os.unlink
 
     try_delete(pj(save_path, 'src', relative_path), delete_fn)
     i = 0
     while True:
         i += 1
-        patch_dir = pj(save_path, dir_patch_name(i), relative_path)
-        if not try_delete(patch_dir, delete_fn):
+        patch_dir = pj(save_path, dir_patch_name(i))
+        deleted_somthing = try_delete(pj(patch_dir, relative_path), delete_fn)
+
+        if deleted_somthing:
+            if os.listdir(patch_dir) == []:
+                shutil.rmtree(patch_dir)
+        else:
             break
