@@ -20,4 +20,7 @@ def load(data_path, save_path):
 
         for dir_name in dirnames:
             relative_path = get_relative_path(src, pj(dirpath, dir_name))
-            os.makedirs(pj(data_path, relative_path))
+            try:
+                os.makedirs(pj(data_path, relative_path))
+            except FileExistsError:
+                pass
