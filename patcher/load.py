@@ -10,6 +10,9 @@ from patcher.patch import reconstitute_file
 
 def load(data_path, save_path):
     init_folders_if_needed(data_path, save_path)
+    if os.listdir(data_path) != []:
+        print('data already loaded in “{}”'.format(data_path))
+        return
     src = pj(save_path, 'src')
     walk = os.walk(src)
     for dirpath, dirnames, filenames in walk:

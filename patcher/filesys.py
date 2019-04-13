@@ -21,8 +21,9 @@ def create_binary_file(path, content):
     if not os.path.exists(dirs):
         os.makedirs(dirs)
 
-    with open(path, 'wb') as f:
-        f.write(content)
+    if not os.path.exists(path):
+        with open(path, 'wb') as f:
+            f.write(content)
 
 
 def copy_data_in_src(abs_path, data_path, save_path):
@@ -56,7 +57,7 @@ def delete_old_and_mv_new_to_src(save_path):
         for file_name in filenames:
             relative_path = get_relative_path(src_new, pj(dirpath, file_name))
 
-            delete_olds(relative_path)
+            delete_olds(relative_path, save_path)
             os.rename(pj(save_path, 'src_new', relative_path),
                       pj(save_path, 'src', relative_path))
 
