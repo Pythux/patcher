@@ -21,9 +21,8 @@ def create_binary_file(path, content):
     if not os.path.exists(dirs):
         os.makedirs(dirs)
 
-    if not os.path.exists(path):
-        with open(path, 'wb') as f:
-            f.write(content)
+    with open(path, 'wb') as f:
+        f.write(content)
 
 
 def copy_data_in_src(abs_path, data_path, save_path):
