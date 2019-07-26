@@ -12,7 +12,6 @@ def dir_patch_name(nb):
 
 
 def create_dirs(save_path):
-    os.makedirs(save_path)
     li_dir_to_create = [
         'src_new',
         'src',
@@ -23,6 +22,8 @@ def create_dirs(save_path):
 
 def init_folders_if_needed(data_path, save_path):
     if not os.path.isdir(save_path):
+        os.makedirs(save_path)
+    if os.listdir(save_path) == []:
         create_dirs(save_path)
 
     if not os.path.isdir(data_path):

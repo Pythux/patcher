@@ -1,7 +1,6 @@
 import os
 from os.path import join as pj
 import shutil
-
 from tools.path import get_relative_path
 
 from patcher.init import dir_patch_name
@@ -30,6 +29,7 @@ def copy_data_in_src(abs_path, data_path, save_path):
     relavive_path_to_make, name_to_copy = os.path.split(relative_path)
     path_src_to_make = pj(save_path, 'src', relavive_path_to_make)
     path_dest = pj(path_src_to_make, name_to_copy)
+
     if not os.path.exists(path_src_to_make):
         os.makedirs(path_src_to_make)
 
@@ -65,23 +65,27 @@ def delete_old_and_mv_new_to_src(save_path):
 
 
 def delete_olds(relative_path, save_path):
-    def try_delete(path, delete_fn):
-        if os.path.exists(path):
-            delete_fn(path)
-            return True
-        return False
+    try_delete(pj(save_path, 'src', relative_path))
+    delete_patchs(relative_path, save_path)
 
+
+def try_delete(path):
     delete_fn = shutil.rmtree
-    if os.path.isfile(pj(save_path, 'src', relative_path)):
+    if os.path.isfile(path):
         delete_fn = os.unlink
 
-    try_delete(pj(save_path, 'src', relative_path), delete_fn)
+    if os.path.exists(path):
+        delete_fn(path)
+        return True
+    return False
+
+
+def delete_patchs(relative_path, save_path):
     i = 0
     while True:
         i += 1
         patch_dir = pj(save_path, dir_patch_name(i))
-        deleted_somthing = try_delete(pj(patch_dir, relative_path), delete_fn)
-
+        deleted_somthing = try_delete(pj(patch_dir, relative_path))
         if deleted_somthing:
             if os.listdir(patch_dir) == []:
                 shutil.rmtree(patch_dir)

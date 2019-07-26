@@ -6,7 +6,8 @@ from tools.log import logi
 
 from patcher.init import dir_patch_name
 from patcher.filesys import (
-    get_binary_file_content, create_binary_file, delete_old_and_mv_new_to_src)
+    get_binary_file_content, create_binary_file,
+    delete_old_and_mv_new_to_src, delete_patchs)
 
 
 def reconstitute_file(relative_path, save_path):
@@ -53,16 +54,24 @@ def try_patch(relative_path, data_path, save_path):
     current_file = get_binary_file_content(pj(data_path, relative_path))
     src_file = get_binary_file_content(pj(save_path, 'src', relative_path))
     li_patch = get_li_patch(relative_path, save_path)
-    file_stored = compose_patch(src_file, *li_patch)
-    if current_file != file_stored:
-        patch = bsdiff4.diff(file_stored, current_file)
-        total_size_in_disk = len(src_file) + sum(map(len, li_patch))
+    file_composed = compose_patch(src_file, *li_patch)
+    if current_file != file_composed:
+        patch = bsdiff4.diff(file_composed, current_file)
+        patch_from_src = bsdiff4.diff(src_file, current_file)
+        patchs_size = sum(map(len, li_patch))
         len_ram_file = len(current_file)
-        if len(patch) < len_ram_file and total_size_in_disk < len_ram_file * 3:
+        if len(patch_from_src) < len(patch) * (1 + 0.05 * len(li_patch)):
+            logi('delete olds patchs an add a new one (from src file) {}'
+                 .format(relative_path))
+            delete_patchs(relative_path, save_path)
+            add_new_patch(relative_path, patch_from_src, 1, save_path)
+
+        elif len(patch) < len_ram_file and patchs_size < len_ram_file * 0.5:
             logi('add new patch for: {}'.format(relative_path))
             add_new_patch(relative_path, patch, len(li_patch) + 1, save_path)
         else:
-            logi('del olds patch and create src_new for ' + relative_path)
+            logi('del olds patch and file -> create src_new for {}'
+                 .format(relative_path))
             create_binary_file(
                 os.path.join(save_path, 'src_new', relative_path),
                 current_file)
