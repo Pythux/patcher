@@ -60,13 +60,14 @@ def try_patch(relative_path, data_path, save_path):
         patch_from_src = bsdiff4.diff(src_file, current_file)
         patchs_size = sum(map(len, li_patch))
         len_ram_file = len(current_file)
-        if len(patch_from_src) < len(patch) * (1 + 0.05 * len(li_patch)):
+        len_patch = len(patch)
+        if len(patch_from_src) < len_patch * (1 + 0.05 * len(li_patch)):
             logi('delete olds patchs an add a new one (from src file) {}'
                  .format(relative_path))
             delete_patchs(relative_path, save_path)
             add_new_patch(relative_path, patch_from_src, 1, save_path)
 
-        elif len(patch) < len_ram_file and patchs_size < len_ram_file * 0.5:
+        elif len_patch < len_ram_file and patchs_size < len_ram_file * 0.5:
             logi('add new patch for: {}'.format(relative_path))
             add_new_patch(relative_path, patch, len(li_patch) + 1, save_path)
         else:
