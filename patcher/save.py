@@ -40,7 +40,7 @@ def save(data_path, save_path, change_since_mn=None):
     delete_old_and_mv_new_to_src(save_path)
 
     def fn_dir_and_file(abs_path):
-        return fn_dir_and_file_with_path(abs_path, data_path, save_path)
+        fn_dir_and_file_with_path(abs_path, data_path, save_path)
 
-    scan_file_dir(data_path, 100, change_since_mn,
+    scan_file_dir(data_path, None, change_since_mn,
                   fn_dir_and_file, fn_dir_and_file)
