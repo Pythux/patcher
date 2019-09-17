@@ -55,12 +55,16 @@ def try_patch(relative_path, data_path, save_path):
     src_file = get_binary_file_content(pj(save_path, 'src', relative_path))
     li_patch = get_li_patch(relative_path, save_path)
     composed_file = compose_patch(src_file, *li_patch)
+    print('have all content')
     if "data/Default 1/GPUCache" in relative_path:
         # to fix, bsdiff4.diff run indefinitely
         return
     if current_file != composed_file:
+        print('create patch')
         patch = bsdiff4.diff(composed_file, current_file)
+        print('diff from composed patchs')
         patch_from_src = bsdiff4.diff(src_file, current_file)
+        print('diff from src')
         patchs_size = sum(map(len, li_patch))
         len_ram_file = len(current_file)
         len_patch = len(patch)

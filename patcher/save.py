@@ -1,8 +1,10 @@
 import os
 from os.path import join as pj
+import shutil
 
 from tools.log import logi
 from tools.path import get_relative_path, scan_file_dir
+from tools.tar import make_tar
 
 from patcher.init import init_folders_if_needed
 from patcher.patch import try_patch
@@ -32,15 +34,33 @@ def fn_dir_and_file_with_path(abs_path, data_path, save_path):
             fn_dir(relative_path, data_path, save_path)
 
 
-def save(data_path, save_path, change_since_mn=None):
+def save(data_path, save_path, save_mode=None, change_since_mn=None):
     init_folders_if_needed(data_path, save_path)
     # if the systeme have shutdown at the wrong moment,
     # there may be files in "src_new" to process
     # to return to a proper state
     delete_old_and_mv_new_to_src(save_path)
+    if save_mode == 'patch file by file':
+        def fn_dir_and_file(abs_path):
+            fn_dir_and_file_with_path(abs_path, data_path, save_path)
 
-    def fn_dir_and_file(abs_path):
-        fn_dir_and_file_with_path(abs_path, data_path, save_path)
+        scan_file_dir(data_path, None, change_since_mn,
+                      fn_dir_and_file, fn_dir_and_file)
 
-    scan_file_dir(data_path, None, change_since_mn,
-                  fn_dir_and_file, fn_dir_and_file)
+    elif save_mode == 'all in one':
+        make_tar(data_path)
+        tar_ram_path = data_path + '.tar'
+        tar_disk_path = pj(save_path, os.path.basename(save_path)) + '.tar'
+        # too much time and RAM to process
+        # fn_dir_and_file_with_path(tar_path, os.path.dirname(data_path), save_path)
+        if not os.path.exists(tar_disk_path):
+            shutil.copy2(tar_ram_path, tar_disk_path)
+        else:
+            with open(tar_ram_path, 'rb') as ram_tar:
+                with open(tar_disk_path, 'wb') as disk_tar:
+                    disk_tar.write(ram_tar.read())
+        os.unlink(tar_ram_path)
+
+    else:  # save_mode by default: "all in one + gzip"
+        print('will be tar gz, not implemented yet')
+        pass
