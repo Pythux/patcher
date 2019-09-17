@@ -69,13 +69,16 @@ def delete_olds(relative_path, save_path):
     delete_patchs(relative_path, save_path)
 
 
-def try_delete(path):
+def delete_path(path):
     delete_fn = shutil.rmtree
     if os.path.isfile(path):
         delete_fn = os.unlink
+    delete_fn(path)
 
+
+def try_delete(path):
     if os.path.exists(path):
-        delete_fn(path)
+        delete_path(path)
         return True
     return False
 

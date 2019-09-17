@@ -3,7 +3,8 @@ from os.path import join as pj
 import shutil
 
 from tools.path import get_relative_path
-from tools.tar import extract_tarfile
+from tools.tar import extract_tar
+from tools.log import logi
 from patcher.init import init_folders_if_needed
 
 from patcher.filesys import create_binary_file
@@ -13,7 +14,7 @@ from patcher.patch import reconstitute_file
 def load(save_path, data_path, save_mode=None):
     """load data in save_path to data_path"""
     if os.path.exists(data_path):
-        print('data already loaded in “{}”'.format(data_path))
+        logi('data already loaded in “{}”'.format(data_path))
         return
 
     if save_mode == 'patch file by file':
@@ -22,22 +23,24 @@ def load(save_path, data_path, save_mode=None):
 
     elif save_mode == 'all in one':
         init_folders_if_needed(os.path.dirname(data_path), save_path)
-        print(save_path, data_path)
         # make_tar(data_path)
         tar_ram_path = data_path + '.tar'
         tar_disk_path = pj(save_path, os.path.basename(save_path)) + '.tar'
         if not os.path.exists(tar_disk_path):
-            print('file: {} does not exist, can\'t load to {}'.format(tar_disk_path, data_path))
+            logi('file: {} does not exist, can\'t load to {}'.format(tar_disk_path, data_path))
             return
 
-        print(tar_disk_path, tar_ram_path)
+        logi(tar_disk_path, tar_ram_path)
         shutil.copy2(tar_disk_path, tar_ram_path)
-        extract_tarfile(tar_ram_path, extract_path=os.path.dirname(data_path))
+        extract_tar(tar_ram_path, extract_path=os.path.dirname(data_path))
         os.unlink(tar_ram_path)
 
     elif save_mode == 'overide file by file':
-        init_folders_if_needed(os.path.basename(data_path), save_path)
-        shutil.copytree(save_path, data_path)
+        init_folders_if_needed(os.path.dirname(data_path), save_path)
+        shutil.copytree(pj(save_path, 'src'), data_path)
+
+    else:
+        logi('save_mode: "{}" not implemented'.format(save_mode))
 
 
 def load_file_by_file(save_path, data_path):

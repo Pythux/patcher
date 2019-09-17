@@ -2,14 +2,14 @@ import os
 from os.path import join as pj
 import shutil
 
-from tools.log import logi
+from tools.log import logi, logd
 from tools.path import get_relative_path, scan_file_dir
 from tools.tar import make_tar
 
 from patcher.init import init_folders_if_needed
 from patcher.patch import try_patch
 from patcher.filesys import (
-    copy_data_in_src, delete_olds, delete_old_and_mv_new_to_src)
+    copy_data_in_src, delete_olds, delete_old_and_mv_new_to_src, delete_path)
 
 
 def fn_dir(relative_path, data_path, save_path):
@@ -61,6 +61,33 @@ def save(data_path, save_path, save_mode=None, change_since_mn=None):
                     disk_tar.write(ram_tar.read())
         os.unlink(tar_ram_path)
 
-    else:  # save_mode by default: "all in one + gzip"
-        print('will be tar gz, not implemented yet')
+    elif save_mode == 'overide file by file':
+        init_folders_if_needed(data_path, save_path)
+        save_path = pj(save_path, 'src')
+        walk = os.walk(data_path)
+        for dirpath, dirnames, filenames in walk:
+            for file_name in filenames:
+                relative_path = get_relative_path(data_path, pj(dirpath, file_name))
+                with open(pj(save_path, relative_path), 'wb') as fp_disk:
+                    with open(pj(dirpath, file_name), 'rb') as fp_ram:
+                        fp_disk.write(fp_ram.read())
+
+            for dir_name in dirnames:
+                relative_path = get_relative_path(data_path, pj(dirpath, dir_name))
+                dir_disk_path = pj(save_path, relative_path)
+                dir_ram_path = pj(dirpath, dir_name)
+                try_make_dirs(dir_disk_path)
+                set_disk = set(os.listdir(dir_disk_path))
+                set_ram = set(os.listdir(dir_ram_path))
+                for to_delete in set_disk - set_ram:
+                    logd('delete: ' + pj(dir_disk_path, to_delete))
+                    delete_path(pj(dir_disk_path, to_delete))
+    else:
+        logi('save_mode: "{}" not implemented'.format(save_mode))
+
+
+def try_make_dirs(path):
+    try:
+        os.makedirs(path)
+    except FileExistsError:
         pass
