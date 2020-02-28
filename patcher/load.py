@@ -7,9 +7,6 @@ from tools.tar import extract_tar
 from tools.log import logi
 from patcher.init import init_folders_if_needed
 
-from patcher.filesys import create_binary_file
-from patcher.patch import reconstitute_file
-
 
 def load(save_path, data_path, save_mode=None):
     """load data in save_path to data_path"""
@@ -44,6 +41,8 @@ def load(save_path, data_path, save_mode=None):
 
 
 def load_file_by_file(save_path, data_path):
+    from patcher.patch import reconstitute_file
+    from patcher.filesys import create_binary_file
     src = pj(save_path, 'src')
     walk = os.walk(src)
     for dirpath, dirnames, filenames in walk:

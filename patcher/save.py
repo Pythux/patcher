@@ -7,7 +7,7 @@ from tools.path import get_relative_path, scan_file_dir
 from tools.tar import make_tar
 
 from patcher.init import init_folders_if_needed
-from patcher.patch import try_patch
+
 from patcher.filesys import (
     copy_data_in_src, delete_olds, delete_old_and_mv_new_to_src, delete_path)
 
@@ -22,7 +22,7 @@ def fn_dir(relative_path, data_path, save_path):
         delete_olds(pj(relative_path, del_file_dir), save_path)
 
 
-def fn_dir_and_file_with_path(abs_path, data_path, save_path):
+def fn_dir_and_file_with_path(abs_path, data_path, save_path, try_patch):
     relative_path = get_relative_path(data_path, abs_path)
     if not os.path.exists(pj(save_path, 'src', relative_path)):
         logi('create src: ' + pj(save_path, 'src', relative_path))
@@ -41,8 +41,10 @@ def save(data_path, save_path, save_mode=None, change_since_mn=None):
     # to return to a proper state
     delete_old_and_mv_new_to_src(save_path)
     if save_mode == 'patch file by file':
+        from patcher.patch import try_patch
+
         def fn_dir_and_file(abs_path):
-            fn_dir_and_file_with_path(abs_path, data_path, save_path)
+            fn_dir_and_file_with_path(abs_path, data_path, save_path, try_patch)
 
         scan_file_dir(data_path, None, change_since_mn,
                       fn_dir_and_file, fn_dir_and_file)
